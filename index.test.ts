@@ -199,7 +199,7 @@ describe("Comprobar el porcentaje total de ocupación", () => {
     );
   });
   test("Devolverá que el array de rooms esta vacio", () => {
-    const rooms = [];
+    const rooms: typeof Room = [];
     expect(
       Room.totalOccupancyPercentage(
         rooms,
@@ -363,7 +363,7 @@ describe("Comprobar las habitaciones disponibles entre dos fechas", () => {
   });
 
   test("Devolverá que el array de rooms esta vacio por que no hay habitaciones", () => {
-    const rooms = [];
+    const rooms: typeof Room = [];
     expect(
       Room.availableRooms(rooms, new Date("6/1/2023"), new Date("6/10/2023"))
     ).toBe("No se han introducido habitaciones");
