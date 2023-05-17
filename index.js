@@ -7,7 +7,8 @@
     }
   
     isOccupied(date) {
-      let isOccupied = false;
+      try{
+        let isOccupied = false;
   
       this.bookings.forEach((booking) => {
         if (
@@ -16,8 +17,7 @@
           this.bookings !== booking.room.bookings ||
           this.discount !== booking.room.discount
         ) {
-          isOccupied =
-            "La reserva introducida en la habitación no corresponde a esta habitación";
+          throw new Error("La reserva introducida en la habitación no corresponde a esta habitación")
         } else if (
           date.getTime() >= booking.checkIn.getTime() &&
           date.getTime() <= booking.checkOut.getTime()
@@ -26,17 +26,23 @@
         }
       });
       return isOccupied;
+      } catch(e){
+          console.log(e.name + ": " + e.message);
+          return false;
+      }
+      
     }
   
     occupancyPercentage(startDate, endDate) {
-      let totalDays =
+      try{
+        let totalDays =
         (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
       let totalDaysOccupied = 0;
       if (startDate.getTime() >= endDate.getTime()) {
-        return "La fecha de fin introducida es anterior o igual a la fecha de inicio";
+        throw new Error("La fecha de fin introducida es anterior o igual a la fecha de inicio")
       } else {
         if (this.bookings.length === 0) {
-          return totalDaysOccupied = "No hay reservas disponibles";
+          return totalDaysOccupied;
         } else {
           this.bookings.forEach((booking) => {
             if (
@@ -45,8 +51,7 @@
               this.bookings !== booking.room.bookings ||
               this.discount !== booking.room.discount
             ) {
-              totalDaysOccupied =
-                "La reserva introducida en la habitación no corresponde a esta habitación";
+              throw new Error("La reserva introducida en la habitación no corresponde a esta habitación")
             } else if (
               booking.checkIn.getTime() > endDate.getTime() ||
               startDate.getTime() > booking.checkOut.getTime()
@@ -79,44 +84,59 @@
           }
         }
       }
+      } catch (e){
+        console.log(e.name + ": " + e.message);
+        return -1;
+      }
     }
   
     static totalOccupancyPercentage(rooms, startDate, endDate) {
-      let totalPercentage = 0;
+      try{
+        let totalPercentage = 0;
       if (startDate.getTime() >= endDate.getTime()) {
-        return "La fecha de fin introducida es anterior o igual a la fecha de inicio";
+        throw new Error("La fecha de fin introducida es anterior o igual a la fecha de inicio")
       } else if (rooms.length === 0) {
-        return totalPercentage;
+         throw new Error("El array de rooms esta vacio");
       } else {
         rooms.forEach((room) => {
           room = new Room(room.name, room.bookings, room.rate, room.discount);
           totalPercentage += room.occupancyPercentage(startDate, endDate);
         });
         if (isNaN(totalPercentage)) {
-          return "La reserva introducida en la habitación no corresponde a esta habitación o no tiene reservas disponibles";
+          throw new Error("La reserva introducida en la habitación no corresponde a esta habitación o no tiene reservas disponibles")
         } else return totalPercentage / rooms.length;
+      }
+      } catch (e){
+        console.log(e.name + ": " + e.message);
+        return -1;
       }
     }
   
     static availableRooms(rooms, startDate, endDate) {
-      let totalRoomsAvailable = [];
+      try{
+        let totalRoomsAvailable = [];
       if (startDate.getTime() >= endDate.getTime()) {
-        return "La fecha de fin introducida es anterior o igual a la fecha de inicio";
+        throw new Error("La fecha de fin introducida es anterior o igual a la fecha de inicio")
       } else if (rooms.length === 0) {
-        return "No se han introducido habitaciones";
+        throw new Error("No se han introducido habitaciones");
       } else {
         rooms.forEach((room) => {
           room = new Room(room.name, room.bookings, room.rate, room.discount);
           if (room.occupancyPercentage(startDate, endDate) === 0) {
             totalRoomsAvailable.push(room);
           }
-          if(room.occupancyPercentage(startDate, endDate) === "La reserva introducida en la habitación no corresponde a esta habitación" || room.occupancyPercentage(startDate, endDate) === "No hay reservas disponibles"){
-            totalRoomsAvailable = "La reserva introducida en la habitación no corresponde a esta habitación o no tiene reservas disponibles";
+          if(room.occupancyPercentage(startDate, endDate) === -1){
+            throw new Error("La reserva introducida en la habitación no corresponde a esta habitación o no tiene reservas disponibles");
           }
         });
   
         return totalRoomsAvailable;
       }
+      } catch(e){
+        console.log(e.name + ": " + e.message);
+        return [];
+      }
+      
     }
   }
   
@@ -132,38 +152,44 @@
     }
   
     getFee(room) {
-      const days = (this.checkOut.getTime() - this.checkIn.getTime())/(1000*60*60*24);
-      console.log(days)
-      let totalBeforeBookingDiscount = 0;
-      let totalPrice = 0;
-      if(days >0 ){
-        if(!this.room){
-          totalPrice= "No hay habitación para esta reserva"
-        } else {
-          if(this.room.discount > 0){
-            totalBeforeBookingDiscount = (this.room.rate*days)-((this.room.rate*days)*(this.room.discount/100));
-            console.log(totalBeforeBookingDiscount)
-           if(this.discount > 0){
-             totalPrice = totalBeforeBookingDiscount-(totalBeforeBookingDiscount*(this.discount/100));
+      try{
+        const days = (this.checkOut.getTime() - this.checkIn.getTime())/(1000*60*60*24);
+        console.log(days)
+        let totalBeforeBookingDiscount = 0;
+        let totalPrice = 0;
+        if(days >0 ){
+          if(!this.room){
+            throw new Error("No hay habitación para esta reserva")
+          } else {
+            if(this.room.discount > 0){
+              totalBeforeBookingDiscount = (this.room.rate*days)-((this.room.rate*days)*(this.room.discount/100));
+              console.log(totalBeforeBookingDiscount)
+             if(this.discount > 0){
+               totalPrice = totalBeforeBookingDiscount-(totalBeforeBookingDiscount*(this.discount/100));
+             } else {
+               totalPrice = totalBeforeBookingDiscount;
+             }
+       
            } else {
-             totalPrice = totalBeforeBookingDiscount;
+             totalBeforeBookingDiscount = this.room.rate * days
+             console.log(totalBeforeBookingDiscount)
+             
+             if(this.discount > 0){
+               totalPrice = totalBeforeBookingDiscount-(totalBeforeBookingDiscount*(this.discount/100));
+             } else {
+               totalPrice = totalBeforeBookingDiscount;
+             }
            }
+          }
+        } else throw new Error("La fecha de salida es igual o anterior que la de entrada")
+        
+       
+        return totalPrice;
+      } catch(e){
+        console.log(e.name + ": " + e.message);
+        return -1;
+      }
      
-         } else {
-           totalBeforeBookingDiscount = this.room.rate * days
-           console.log(totalBeforeBookingDiscount)
-           
-           if(this.discount > 0){
-             totalPrice = totalBeforeBookingDiscount-(totalBeforeBookingDiscount*(this.discount/100));
-           } else {
-             totalPrice = totalBeforeBookingDiscount;
-           }
-         }
-        }
-      } else totalPrice="La fecha de salida es igual o anterior que la de entrada"
-      
-     
-      return totalPrice;
     }
   }
   const room = new Room("single bed", [], 100, 25);
