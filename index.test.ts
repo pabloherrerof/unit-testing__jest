@@ -73,27 +73,27 @@ describe("Comprobar que una habitación esta ocupada", () => {
     );
     room1.bookings = [booking2, booking3];
     expect(room1.isOccupied(new Date("6/2/2023"))).toBe(
-      "La reserva introducida en la habitación no corresponde a esta habitación"
+      false
     );
   });
 });
 
 describe("Comprobar el porcentaje de dias ocupados entre dos fechas dadas", () => {
-  test("Devolverá que la fecha final es anterior a la fecha inicial", () => {
+  test("Devolverá -1 por que la fecha final es anterior a la fecha inicial", () => {
     const room = new Room("single bed", [], 120, 20);
     expect(
       room.occupancyPercentage(new Date("1/1/2023"), new Date("1/1/1990"))
     ).toBe(
-      "La fecha de fin introducida es anterior o igual a la fecha de inicio"
+      -1
     );
   });
 
-  test("Devolverá que la fecha final es igual a la fecha inicial", () => {
+  test("Devolverá -1 por que la fecha final es igual a la fecha inicial", () => {
     const room = new Room("single bed", [], 120, 20);
     expect(
       room.occupancyPercentage(new Date("1/1/2023"), new Date("1/1/2023"))
     ).toBe(
-      "La fecha de fin introducida es anterior o igual a la fecha de inicio"
+      -1
     );
   });
 
@@ -113,11 +113,11 @@ describe("Comprobar el porcentaje de dias ocupados entre dos fechas dadas", () =
     ).toBe(50);
   });
 
-  test("Devolvera 0% si la habitación no esta reservada", () => {
+  test("Devolvera 0%  si la habitación no esta reservada", () => {
     const room = new Room("single bed", [], 120, 20);
     expect(
       room.occupancyPercentage(new Date("1/1/2023"), new Date("1/2/2023"))
-    ).toBe("No hay reservas disponibles");
+    ).toBe(0);
   });
   test("Devolverá 0% si la habitación no esta ocupada para esos dias", () => {
     const room = new Room("single bed", [], 120, 20);
@@ -177,14 +177,13 @@ describe("Comprobar el porcentaje de dias ocupados entre dos fechas dadas", () =
       room2
     );
     room1.bookings = [booking2, booking3];
-    expect(room1.isOccupied(new Date("6/2/2023"))).toBe(
-      "La reserva introducida en la habitación no corresponde a esta habitación"
+    expect(room1.occupancyPercentage(new Date("6/15/2023"), new Date("6/20/2023"))).toBe(-1
     );
   });
 });
 
 describe("Comprobar el porcentaje total de ocupación", () => {
-  test("Devolverá que la fecha final es anterior a la fecha inicial", () => {
+  test("Devolverá -1 por que la fecha final es anterior a la fecha inicial", () => {
     const room1 = new Room("single bed", [], 120, 20);
     const room2 = new Room("single bed", [], 120, 20);
     const rooms = [room1, room2];
@@ -194,11 +193,9 @@ describe("Comprobar el porcentaje total de ocupación", () => {
         new Date("6/1/2023"),
         new Date("6/21/1990")
       )
-    ).toBe(
-      "La fecha de fin introducida es anterior o igual a la fecha de inicio"
-    );
+    ).toBe(-1);
   });
-  test("Devolverá que el array de rooms esta vacio", () => {
+  test("Devolverá -1 por que el array de rooms esta vacio", () => {
     const rooms: typeof Room = [];
     expect(
       Room.totalOccupancyPercentage(
@@ -206,7 +203,7 @@ describe("Comprobar el porcentaje total de ocupación", () => {
         new Date("6/1/2023"),
         new Date("6/21/2023")
       )
-    ).toBe(0);
+    ).toBe(-1);
   });
   test("Devolverá la ocupación total de las habitaciones para las fechas introducidas", () => {
     const room1 = new Room("single bed", [], 120, 20);
@@ -268,7 +265,7 @@ describe("Comprobar el porcentaje total de ocupación", () => {
       )
     ).toBe(0);
   });
-  test("Devolverá que las habitaciones no estan reservadas", () => {
+  test("Devolverá 0 por que las habitaciones no estan reservadas", () => {
     const room1 = new Room("single bed", [], 120, 20);
     const room2 = new Room("single bed", [], 120, 20);
     const rooms = [room1, room2];
@@ -278,7 +275,7 @@ describe("Comprobar el porcentaje total de ocupación", () => {
         new Date("6/1/2020"),
         new Date("6/21/2020")
       )
-    ).toBe("La reserva introducida en la habitación no corresponde a esta habitación o no tiene reservas disponibles");
+    ).toBe(0);
   });
   test("Devolverá un 100% de ocupación total por que las habitaciones estan reservadas", () => {
     const room1 = new Room("single bed", [], 120, 20);
@@ -311,7 +308,7 @@ describe("Comprobar el porcentaje total de ocupación", () => {
     ).toBe(100);
   });
 
-  test("Devolverá que la reserva del room no es correspondiente a ese room", () => {
+  test("Devolverá -1 por que la reserva del room no es correspondiente a ese room", () => {
     const room1 = new Room("single bed", [], 120, 20);
     const room2 = new Room("double bed", [], 125, 20);
     const booking2 = new Booking(
@@ -335,7 +332,7 @@ describe("Comprobar el porcentaje total de ocupación", () => {
     expect(Room.totalOccupancyPercentage(rooms,
         new Date("6/1/2020"),
         new Date("6/21/2020") )).toBe(
-      "La reserva introducida en la habitación no corresponde a esta habitación o no tiene reservas disponibles"
+      -1
     );
   });
 });
@@ -347,9 +344,7 @@ describe("Comprobar las habitaciones disponibles entre dos fechas", () => {
     const rooms = [room1, room2];
     expect(
       Room.availableRooms(rooms, new Date("6/1/2023"), new Date("6/21/1990"))
-    ).toBe(
-      "La fecha de fin introducida es anterior o igual a la fecha de inicio"
-    );
+    ).toStrictEqual([]);
   });
   test("Devolverá que la fecha final es igual a la fecha inicial", () => {
     const room1 = new Room("single bed", [], 120, 20);
@@ -357,16 +352,14 @@ describe("Comprobar las habitaciones disponibles entre dos fechas", () => {
     const rooms = [room1, room2];
     expect(
       Room.availableRooms(rooms, new Date("6/1/2023"), new Date("6/1/2023"))
-    ).toBe(
-      "La fecha de fin introducida es anterior o igual a la fecha de inicio"
-    );
+    ).toStrictEqual([]);
   });
 
   test("Devolverá que el array de rooms esta vacio por que no hay habitaciones", () => {
     const rooms: typeof Room = [];
     expect(
       Room.availableRooms(rooms, new Date("6/1/2023"), new Date("6/10/2023"))
-    ).toBe("No se han introducido habitaciones");
+    ).toStrictEqual([]);
   });
   test("Devolverá un array vacio por que todas las habitaciones estan ocupadas para esas fechas", () => {
     const room1 = new Room("single bed", [], 120, 20);
@@ -393,7 +386,7 @@ describe("Comprobar las habitaciones disponibles entre dos fechas", () => {
     const rooms = [room1, room2];
     expect(
       Room.availableRooms(rooms, new Date("6/1/2023"), new Date("7/10/2023"))
-    ).toEqual([]);
+    ).toStrictEqual([]);
   });
   test("Devolverá las habitaciones disponbles para los días introducidos", () => {
     const room1 = new Room("single bed", [], 120, 20);
@@ -422,7 +415,7 @@ describe("Comprobar las habitaciones disponibles entre dos fechas", () => {
       Room.availableRooms(rooms, new Date("6/10/2023"), new Date("6/15/2023"))
     ).toStrictEqual([room2]);
   });
-  test("Devolverá que las habitaciones no estan reservadas", () => {
+  test("Devolverá las dos habitaciones por que no estan reservadas", () => {
     const room1 = new Room("single bed", [], 120, 20);
     const room2 = new Room("single bed", [], 120, 20);
     const rooms = [room1, room2];
@@ -432,7 +425,7 @@ describe("Comprobar las habitaciones disponibles entre dos fechas", () => {
         new Date("6/1/2020"),
         new Date("6/21/2020")
       )
-    ).toBe("La reserva introducida en la habitación no corresponde a esta habitación o no tiene reservas disponibles");
+    ).toStrictEqual([room1, room2]);
   });
 
   test("Devolverá que la reserva del room no es correspondiente a ese room", () => {
@@ -463,8 +456,8 @@ const rooms = [room2, room1];
         rooms,
         new Date("6/1/2020"),
         new Date("6/21/2020")
-      )).toBe(
-      "La reserva introducida en la habitación no corresponde a esta habitación o no tiene reservas disponibles"
+      )).toStrictEqual(
+      []
     );
   });
 });
@@ -486,7 +479,7 @@ describe("Comprobar el fee total de un booking", () => {
         expect(booking.getFee()).toBe(400);
     })
 
-    test("Devolverá que no hay room introducida", () =>{
+    test("Devolverá -1 por que no hay room introducida", () =>{
         const booking = new Booking(
             "marta",
             "marta@yahoo.com",
@@ -494,7 +487,7 @@ describe("Comprobar el fee total de un booking", () => {
             new Date("2/5/2023"),
             0
           );
-        expect(booking.getFee()).toBe("No hay habitación para esta reserva");
+        expect(booking.getFee()).toBe(-1);
     })
 
 
@@ -542,7 +535,7 @@ describe("Comprobar el fee total de un booking", () => {
         expect(booking.getFee()).toBe(0);
     })
 
-    test("Devolverá que la fecha de salida es la misma o anterior que la de entrada", () => {
+    test("Devolverá -1 por que la fecha de salida es la misma o anterior que la de entrada", () => {
         const room = new Room ("single bed", [], 0, 25);
         const booking = new Booking(
           "marta",
@@ -554,7 +547,7 @@ describe("Comprobar el fee total de un booking", () => {
         );
         room.bookings = booking;
 
-        expect(booking.getFee()).toBe("La fecha de salida es igual o anterior que la de entrada");
+        expect(booking.getFee()).toBe(-1);
     })
 
  }) 
